@@ -844,14 +844,14 @@ void scrypt_core(uint4 X[8], __global uint4*restrict lookup)
 #define SETFOUND(Xnonce) output[output[FOUND]++] = Xnonce
 
 __attribute__((reqd_work_group_size(WORKSIZE, 1, 1)))
-__kernel void search(__global const uint4 * restrict input,
-volatile __global uint*restrict output, __global uint4*restrict padcache,
-const uint4 midstate0, const uint4 midstate16, const uint target)
+__kernel void search(const uint4 input0, const uint4 input1, const uint4 input2, const uint4 input3, const uint4 input4,
+const uint4 midstate0, const uint4 midstate16,
+volatile __global uint*restrict output, __global uint4*restrict padcache)
 {
 	uint gid = get_global_id(0);
 	uint4 X[8];
 	uint4 tstate0, tstate1, ostate0, ostate1, tmp0, tmp1;
-	uint4 data = (uint4)(input[4].x,input[4].y,input[4].z,gid);
+	uint4 data = (uint4)(input4.x,input4.y,input4.z,gid);
 	uint4 pad0 = midstate0, pad1 = midstate16;
 
 	SHA256(&pad0,&pad1, data, (uint4)(K[84],0,0,0), (uint4)(0,0,0,0), (uint4)(0,0,0, K[86]));
@@ -860,7 +860,7 @@ const uint4 midstate0, const uint4 midstate16, const uint target)
 
 	tmp0 = tstate0;
 	tmp1 = tstate1;
-	SHA256(&tstate0, &tstate1, input[0],input[1],input[2],input[3]);
+	SHA256(&tstate0, &tstate1, input0,input1,input2,input3);
 
 #pragma unroll
 	for (uint i=0; i<4; i++)
@@ -879,7 +879,7 @@ const uint4 midstate0, const uint4 midstate16, const uint target)
 	SHA256_fixed(&tmp0,&tmp1);
 	SHA256(&ostate0,&ostate1, tmp0, tmp1, (uint4)(K[84], 0U, 0U, 0U), (uint4)(0U, 0U, 0U, K[88]));
 
-	bool result = (EndianSwap(ostate1.w) <= target);
+	bool result = (EndianSwap(ostate1.w) <= input4.w);
 	if (result)
 		SETFOUND(gid);
 }

@@ -1002,12 +1002,16 @@ static cl_int queue_kernel(_clState *clState, dev_blk_ctx *blk, __maybe_unused c
 	clState->cldata = blk->work->data;
 	status = clEnqueueWriteBuffer(clState->commandQueue, clState->CLbuffer0, true, 0, 80, clState->cldata, 0, NULL,NULL);
 
-	CL_SET_ARG(clState->CLbuffer0);
-	CL_SET_ARG(clState->outputBuffer);
-	CL_SET_ARG(clState->padbuffer8);
+	*(cl_uint*)((char*)clState->cldata + 76) = le_target;
+	CL_SET_VARG(4, &((char*)clState->cldata)[16 * 0]);
+	CL_SET_VARG(4, &((char*)clState->cldata)[16 * 1]);
+	CL_SET_VARG(4, &((char*)clState->cldata)[16 * 2]);
+	CL_SET_VARG(4, &((char*)clState->cldata)[16 * 3]);
+	CL_SET_VARG(4, &((char*)clState->cldata)[16 * 4]);
 	CL_SET_VARG(4, &midstate[0]);
 	CL_SET_VARG(4, &midstate[16]);
-	CL_SET_ARG(le_target);
+	CL_SET_ARG(clState->outputBuffer);
+	CL_SET_ARG(clState->padbuffer8);
 
 	return status;
 }
