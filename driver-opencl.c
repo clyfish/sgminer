@@ -1002,6 +1002,10 @@ static cl_int queue_kernel(_clState *clState, dev_blk_ctx *blk, __maybe_unused c
 	clState->cldata = blk->work->data;
 	status = clEnqueueWriteBuffer(clState->commandQueue, clState->CLbuffer0, true, 0, 80, clState->cldata, 0, NULL,NULL);
 
+    /*
+     * pass five uint4 args instead of a uint4 pointer to avoid a memory load.
+     * clState->cldata[76:80](input4.w) is not used, so pack le_target into it.
+     */
 	*(cl_uint*)((char*)clState->cldata + 76) = le_target;
 	CL_SET_VARG(4, &((char*)clState->cldata)[16 * 0]);
 	CL_SET_VARG(4, &((char*)clState->cldata)[16 * 1]);
