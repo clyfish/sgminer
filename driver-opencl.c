@@ -1000,7 +1000,6 @@ static cl_int queue_kernel(_clState *clState, dev_blk_ctx *blk, __maybe_unused c
 
 	le_target = *(cl_uint *)(blk->work->device_target + 28);
 	clState->cldata = blk->work->data;
-	status = clEnqueueWriteBuffer(clState->commandQueue, clState->CLbuffer0, true, 0, 80, clState->cldata, 0, NULL,NULL);
 
     /*
      * pass five uint4 args instead of a uint4 pointer to avoid a memory load.
